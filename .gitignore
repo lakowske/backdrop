@@ -1,1 +1,8 @@
 neotre
+.venv/
+*.egg-info/
+__pycache__/
+.vscode/
+*.pyc
+*.pyo
+*.pyd

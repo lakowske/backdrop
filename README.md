@@ -1,13 +1,12 @@
 # Backdrop
 
-A simple, intuitive server daemon manager. Run any server in the background with automatic logging - no configuration needed.
+Backdrop (bd) is a simple, intuitive server daemon manager. Run any server in the background with automatic logging - no configuration needed.
 
 ## Features
 
-- **Dead simple**: Just run `bd my_server.py` and it works
-- **Automatic logging**: Logs are automatically saved to `./logs/`
-- **Multiple servers**: Manage multiple server processes from one tool
-- **Smart defaults**: Automatically detects Python scripts, creates log directories
+- **Dead simple**: Just run `bd start command [args]` and it works
+- **Automatic logging**: Stdout and Stderr logs are automatically saved to `./logs/command.log` and `./logs/command_error.log`
+- **Multiple servers**: Manage multiple server processes using .pid files from one tool
 - **Process monitoring**: View CPU, memory usage, and uptime
 - **Graceful shutdown**: Proper signal handling for clean stops
 
@@ -21,10 +20,10 @@ pip install -e .
 
 ```bash
 # Start a server in the background
-bd my_server.py
+bd start my_server.py
 
 # Start with custom name
-bd my_server.py --name api
+bd start --name api my_server.py
 
 # Check status of all servers
 bd status
@@ -42,20 +41,24 @@ bd restart my_server
 ## Usage Examples
 
 ### Start a Python server
+
 ```bash
-bd app.py
+bd start app.py
 # ✓ Started app (PID: 12345)
 #     Logs: ./logs/app.log
+#     Error Logs: ./logs/app_error.log
 ```
 
 ### Start a Node.js server
+
 ```bash
-bd node server.js --name web
+bd node --name web server.js
 # ✓ Started web (PID: 12346)
 #     Logs: ./logs/web.log
 ```
 
 ### View all running servers
+
 ```bash
 bd status
 # ┏━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━┳━━━━━━━━┓
@@ -67,11 +70,13 @@ bd status
 ```
 
 ### Follow logs in real-time
+
 ```bash
 bd logs app --follow
 ```
 
 ### Stop all servers
+
 ```bash
 bd stop-all
 ```
@@ -79,19 +84,22 @@ bd stop-all
 ## Advanced Usage
 
 ### Custom working directory
+
 ```bash
-bd my_server.py --cwd /path/to/project
+bd --cwd /path/to/project my_server.py
 ```
 
 ### View detailed status
+
 ```bash
 bd status --verbose
 # Shows CPU %, memory usage, and full command
 ```
 
 ### View error logs
+
 ```bash
-bd logs my_server --error
+bd logs --error my_server
 ```
 
 ## Development
@@ -113,9 +121,10 @@ mypy src/
 ## How It Works
 
 Backdrop manages server processes by:
+
 1. Starting processes in the background with proper daemonization
 2. Redirecting stdout/stderr to timestamped log files
-3. Tracking PIDs in `~/.backdrop/servers.json`
+3. Tracking PIDs in `./pids/command.pid`
 4. Monitoring process health using psutil
 5. Handling graceful shutdowns with configurable timeouts
 
