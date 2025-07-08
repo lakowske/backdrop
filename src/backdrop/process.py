@@ -55,14 +55,14 @@ class ProcessManager:
 
     def start(
         self,
-        command: List[str],
+        command: str,
         name: Optional[str] = None,
         cwd: Optional[Path] = None,
     ) -> Optional[int]:
         """Start a process in the background.
 
         Args:
-            command: Command and arguments to run
+            command: Shell command to run
             name: Optional process name (default: command name)
             cwd: Optional working directory
 
@@ -75,9 +75,9 @@ class ProcessManager:
 
         # Determine process name
         if name is None:
-            name = sanitize_name(os.path.basename(command[0]))
+            name = sanitize_name(command)
 
-        logger.info(f"Starting process - name={name}, command={' '.join(command)}")
+        logger.info(f"Starting process - name={name}, command={command}")
 
         # Check if already running
         pid_file = self.pids_dir / f"{name}.pid"
@@ -117,7 +117,7 @@ class ProcessManager:
                     startup_msg = (
                         f"\n{'='*60}\n"
                         f"Starting {name} at {time.strftime('%Y-%m-%d %H:%M:%S')}\n"
-                        f"Command: {' '.join(command)}\n"
+                        f"Command: {command}\n"
                         f"{'='*60}\n"
                     )
                     stdout_f.write(startup_msg)
@@ -126,6 +126,7 @@ class ProcessManager:
                     # Execute the command
                     proc = subprocess.Popen(
                         command,
+                        shell=True,
                         stdout=stdout_f,
                         stderr=stderr_f,
                         cwd=cwd or self.base_dir,
@@ -246,7 +247,7 @@ class ProcessManager:
                 print(f"✗ Cannot get process info for {name}")
                 return None
 
-            command = info["cmdline"].split()
+            command = info["cmdline"]
 
             # Stop the process
             if self.stop(name, timeout):

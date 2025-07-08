@@ -76,12 +76,13 @@ def cli(
 def start(ctx: click.Context, command: List[str], name: Optional[str]) -> None:
     """Start a server in the background.
 
-    COMMAND is the command and arguments to run.
+    COMMAND is the shell command to run.
     """
     manager: ProcessManager = ctx.obj["manager"]
-    logger.info(f"Start command - command={' '.join(command)}, name={name}")
+    shell_command = " ".join(command)
+    logger.info(f"Start command - command={shell_command}, name={name}")
 
-    pid = manager.start(list(command), name)
+    pid = manager.start(shell_command, name)
     if pid:
         sys.exit(0)
     else:

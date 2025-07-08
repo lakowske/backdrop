@@ -5,6 +5,7 @@ Backdrop (bd) is a simple, intuitive server daemon manager. Run any server in th
 ## Features
 
 - **Dead simple**: Just run `bd start command [args]` and it works
+- **Shell command support**: Run complex shell commands with pipes, redirections, and environment variables
 - **Automatic logging**: Stdout and Stderr logs are automatically saved to `./logs/command.log` and `./logs/command_error.log`
 - **Multiple servers**: Manage multiple server processes using .pid files from one tool
 - **Process monitoring**: View CPU, memory usage, and uptime
@@ -40,21 +41,50 @@ bd restart my_server
 
 ## Usage Examples
 
-### Start a Python server
+### Simple Commands
 
 ```bash
-bd start app.py
-# ✓ Started app (PID: 12345)
-#     Logs: ./logs/app.log
-#     Error Logs: ./logs/app_error.log
+# Start a simple command
+bd start sleep 30
+# ✓ Started sleep (PID: 12345)
+
+# Start a Python server
+bd start python app.py
+# ✓ Started python (PID: 12346)
 ```
 
-### Start a Node.js server
+### Complex Shell Commands
+
+For commands with options that might conflict with backdrop's options, use `--` to separate:
 
 ```bash
-bd node --name web server.js
-# ✓ Started web (PID: 12346)
-#     Logs: ./logs/web.log
+# Start Python HTTP server
+bd start -- python -m http.server 8001
+# ✓ Started python (PID: 12347)
+
+# Start uvicorn with options
+bd start -- uvicorn app:main --host 0.0.0.0 --port 8000
+# ✓ Started uvicorn (PID: 12348)
+
+# Commands with environment variables
+bd start -- PYTHONPATH=/tmp python server.py
+# ✓ Started python (PID: 12349)
+```
+
+### Using Quotes (Alternative)
+
+```bash
+# You can also use quotes to wrap the entire command
+bd start "uvicorn app:main --host 0.0.0.0 --port 8000"
+# ✓ Started uvicorn (PID: 12350)
+```
+
+### Custom Process Names
+
+```bash
+# Use --name to specify a custom process name
+bd start --name api -- uvicorn app:main --host 0.0.0.0 --port 8000
+# ✓ Started api (PID: 12351)
 ```
 
 ### View all running servers

@@ -149,11 +149,26 @@ def sanitize_name(name: str) -> str:
     """Sanitize a process name for use in filenames.
 
     Args:
-        name: Process name
+        name: Process name or shell command
 
     Returns:
         Sanitized name safe for filenames
     """
+    # Extract meaningful command name from shell command
+    if " " in name:
+        # Handle environment variables (e.g., "PYTHONPATH=/opt python server.py")
+        parts = name.split()
+        for part in parts:
+            if "=" not in part and not part.startswith("-"):
+                name = part
+                break
+        else:
+            # Fallback to first part if no clean command found
+            name = parts[0]
+    
+    # Extract basename if it's a path
+    name = os.path.basename(name)
+    
     # Remove file extension if present
     if name.endswith((".py", ".js", ".rb", ".sh")):
         name = Path(name).stem
